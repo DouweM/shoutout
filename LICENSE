@@ -1,20 +1,3 @@
-# shoutout
-
-A Ruby library for easily getting metadata from Shoutcast-compatible audio streaming servers.
-
-## Installation
-
-```sh
-gem install shoutout
-```
-
-Or in your Gemfile:
-
-```ruby
-gem "shoutout"
-```
-
-## License
 Copyright (c) 2013 Douwe Maan
 
 Permission is hereby granted, free of charge, to any person obtaining
