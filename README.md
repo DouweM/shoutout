@@ -75,6 +75,9 @@ shoutout.listen
 shoutout.disconnect
 ```
 
+## Examples
+Check out the [`examples/`](examples) folder for an example that I actually use myself.
+
 ## License
 Copyright (c) 2013 Douwe Maan
 
