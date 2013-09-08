@@ -1,3 +1,3 @@
-class Shoutout
+module Shoutout
   VERSION = "0.0.1"
 end

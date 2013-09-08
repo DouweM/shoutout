@@ -1,11 +1,10 @@
 require "spec_helper"
 
-describe Shoutout do
-
+describe Shoutout::Stream do
   let(:url)           { "http://82.201.100.5:8000/radio538" }
   let(:uri)           { URI.parse(url) }
   subject!            { described_class.new(url) }
-  let(:response_data) { File.read(File.expand_path("../fixtures/ok_response", __FILE__)) }
+  let(:response_data) { File.read(File.expand_path("../../fixtures/ok_response", __FILE__)) }
   let(:socket)        { FakeTCPSocket.new(response_data) }
 
   before(:each) do
@@ -105,7 +104,7 @@ describe Shoutout do
 
       context "when the response indicates a redirect" do
 
-        let(:redirect_response_data)  { File.read(File.expand_path("../fixtures/redirect_response", __FILE__)) }
+        let(:redirect_response_data)  { File.read(File.expand_path("../../fixtures/redirect_response", __FILE__)) }
         let(:redirect_socket)         { FakeTCPSocket.new(redirect_response_data) }
 
         before(:each) do
@@ -138,7 +137,7 @@ describe Shoutout do
 
       context "when the response indicates an error" do
 
-        let(:response_data) { File.read(File.expand_path("../fixtures/error_response", __FILE__)) }
+        let(:response_data) { File.read(File.expand_path("../../fixtures/error_response", __FILE__)) }
 
         it "closes the connection" do
           subject.should_receive(:disconnect).twice.and_call_original
@@ -155,7 +154,7 @@ describe Shoutout do
 
         context "when the response is unsupported" do
 
-          let(:response_data) { File.read(File.expand_path("../fixtures/unsupported_response", __FILE__)) }
+          let(:response_data) { File.read(File.expand_path("../../fixtures/unsupported_response", __FILE__)) }
 
           it "closes the connection" do
             subject.should_receive(:disconnect).twice.and_call_original

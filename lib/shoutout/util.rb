@@ -1,4 +1,4 @@
-class Shoutout
+module Shoutout
   module Util
     def self.camelize(term)
       term = term.sub(/^[a-z\d]*/) { $&.capitalize }

@@ -19,60 +19,68 @@ gem "shoutout"
 ```ruby
 require "shoutout"
 
-shoutout = Shoutout.new("http://82.201.100.5:8000/radio538")
+# You can open a connection to the stream that will live for the duration of the block using `.open`:
+Shoutout::Stream.open("http://82.201.100.5:8000/radio538") do |stream|
+  # Use `stream` as described below.
+end
 
-# Explicitly open a connection with the server. You're responsible for closing this connection using `#disconnect`.
-shoutout.connect
+# If you want a little more control over opening and closing the connection, just use `.new`: 
+stream = Shoutout::Stream.new("http://82.201.100.5:8000/radio538")
 
-# If you call any of the reader methods below without having explicitly opened a connection, 
-# one will be opened and closed around reading the information implicitly.
+# You can then explicitly open a connection to the stream. 
+# You're responsible for closing it using `#disconnect` when you're done.
+stream.connect
+
+# If you call any of the reader methods below without having opened a connection using `#connect` 
+# or `.open`, one will be opened and closed around reading the information implicitly.
 # This is convenient if you're only looking for one piece of information, but it is of course 
 # very inefficient if you're going to do multiple reads.
 
 # Stream info
-shoutout.name         # => "RADIO538" 
-shoutout.description  # => "ARE YOU IN"
-shoutout.genre        # => "Various"
-shoutout.notice       # => nil in this case, but this could very well have a value for your stream
-shoutout.content_type # => "audio/mpeg"
-shoutout.bitrate      # => 128
-shoutout.public?      # => true
-shoutout.audio_info   # => { :samplerate => 44100, :bitrate => 128, :channels => 2 }
+stream.name         # => "RADIO538" 
+stream.description  # => "ARE YOU IN"
+stream.genre        # => "Various"
+stream.notice       # => nil in this case, but this could very well have a value for your stream
+stream.content_type # => "audio/mpeg"
+stream.bitrate      # => 128
+stream.public?      # => true
+stream.audio_info   # => { :samplerate => 44100, :bitrate => 128, :channels => 2 }
 
 # Current metadata
-shoutout.metadata # => { "StreamTitle" => "ARMIN VAN BUUREN - THIS IS WHAT IT FEELS LIKE", "StreamUrl" => "http://www.radio538.nl" }
+stream.metadata # => { "StreamTitle" => "Armin van Buuren - This Is What It Feels Like", "StreamUrl" => "http://www.radio538.nl" }
 
 # The Metadata object is a Hash that has been extended with the following features:
-shoutout.metadata[:stream_title]  # => "ARMIN VAN BUUREN - THIS IS WHAT IT FEELS LIKE"
-shoutout.metadata[:stream_url]    # => "http://www.radio538.nl"
-shoutout.metadata.now_playing     # => "ARMIN VAN BUUREN - THIS IS WHAT IT FEELS LIKE"
-shoutout.metadata.website         # => "http://www.radio538.nl"
-shoutout.metadata.artist          # => "ARMIN VAN BUUREN"
-shoutout.metadata.song            # => "THIS IS WHAT IT FEELS LIKE"
+stream.metadata[:stream_title]  # => "Armin van Buuren - This Is What It Feels Like"
+stream.metadata[:stream_url]    # => "http://www.radio538.nl"
+stream.metadata.now_playing     # => "Armin van Buuren - This Is What It Feels Like"
+stream.metadata.website         # => "http://www.radio538.nl"
+stream.metadata.artist          # => "Armin van Buuren"
+stream.metadata.song            # => "This Is What It Feels Like"
 
-# Conveniently, `#now_playing` and `#website` are also available on the Shoutout instance:
-shoutout.now_playing  # => "ARMIN VAN BUUREN - THIS IS WHAT IT FEELS LIKE"
-shoutout.website      # => "http://www.radio538.nl"
+# Conveniently, `#now_playing` and `#website` are also available on the stream object:
+stream.now_playing  # => "Armin van Buuren - This Is What It Feels Like"
+stream.website      # => "http://www.radio538.nl"
 
 # For convenience, all of the reader methods above are also available as class methods:
-Shoutout.now_playing("http://82.201.100.5:8000/radio538") # => "ARMIN VAN BUUREN - THIS IS WHAT IT FEELS LIKE"
-# Just like the equivalent `Shoutout.new("http://82.201.100.5:8000/radio538").now_playing`,
+Shoutout::Stream.now_playing("http://82.201.100.5:8000/radio538") # => "Armin van Buuren - This Is What It Feels Like"
+# Just like the equivalent `Shoutout::Stream.new("http://82.201.100.5:8000/radio538").now_playing`,
 # this will automatically open and close a connection around reading the information.
 
-# You can have a block called every time the metadata changes:
-shoutout.metadata_change do |metadata|
+# You can be notified every time the metadata changes:
+stream.metadata_change do |metadata|
   puts "Now playing: #{metadata.song} by #{metadata.artist}"
+  # => Now playing: This Is What It Feels Like by Armin van Buuren
 end
 # Of course, this only works with an explicitly opened connection.
 
 # If you're done setting up but want the program to keep listening for metadata, say so:
-shoutout.listen
+stream.listen
 # Note that listening will only end when the connection is lost or the end of file is reached, 
 # so anything that comes after this call will only then be executed. 
 # This will generally be the last call in your program.
 
 # If we don't want to wait around and listen, just let the program exit or disconnect explicitly:
-shoutout.disconnect
+stream.disconnect
 ```
 
 ## Examples

@@ -1,4 +1,4 @@
-class Shoutout
+module Shoutout
   module QuickAccess
     def self.included(base)
       base.extend(ClassMethods)

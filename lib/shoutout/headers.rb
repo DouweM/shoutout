@@ -1,4 +1,4 @@
-class Shoutout
+module Shoutout
   class Headers < Hash
     def self.parse(raw_headers)
       headers = {}

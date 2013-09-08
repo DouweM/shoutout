@@ -1,4 +1,4 @@
-class Shoutout
+module Shoutout
   class Metadata < Hash
     def self.parse(raw_metadata)
       metadata = {}
@@ -51,12 +51,17 @@ class Shoutout
       end
 
       def artist
-        now_playing.split(" - ")[0]
+        artist_and_song[0]
       end
 
       def song
-        now_playing.split(" - ")[1]
+        artist_and_song[1]
       end
+
+      private
+        def artist_and_song
+          @artist_and_song ||= now_playing.split(" - ", 2)
+        end
     end
 
     include QuickAccess

@@ -3,7 +3,7 @@ require "spec_helper"
 describe Shoutout::QuickAccess do
 
   let(:url) { "http://82.201.100.5:8000/radio538" }
-  subject   { Shoutout.new(url) }
+  subject   { Shoutout::Stream.new(url) }
 
   describe "#audio_info" do
 
@@ -28,15 +28,15 @@ describe Shoutout::QuickAccess do
   describe ".name" do
 
     it "creates a new instance" do
-      Shoutout.should_receive(:new).with(url).and_return(double("shoutout").as_null_object)
+      Shoutout::Stream.should_receive(:new).with(url).and_return(double("stream").as_null_object)
 
-      Shoutout.name(url)
+      Shoutout::Stream.name(url)
     end
 
     it "calls #name on the opened connection" do
-      Shoutout.any_instance.should_receive(:name)
+      Shoutout::Stream.any_instance.should_receive(:name)
 
-      Shoutout.name(url)
+      Shoutout::Stream.name(url)
     end
   end
 end
