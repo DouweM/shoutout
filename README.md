@@ -1,4 +1,4 @@
-# shoutout
+# shoutout [![Build Status](https://travis-ci.org/DouweM/shoutout.png?branch=master)](https://travis-ci.org/DouweM/shoutout)
 
 A Ruby library for easily getting metadata from Shoutcast-compatible audio streaming servers.
 
