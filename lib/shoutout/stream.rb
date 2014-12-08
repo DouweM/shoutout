@@ -34,7 +34,7 @@ module Shoutout
 
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.write send_header_request(uri.path)
+      @socket.puts send_header_request(uri.path)
 
       # Read status line
       status_line = @socket.gets
