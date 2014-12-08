@@ -40,7 +40,11 @@ module Shoutout
 
       # Read status line
       status_line = @socket.gets
-      status_code = status_line.match(/ICY ([0-9]{3})/)[1].to_i
+      begin
+        status_code = status_line.match(/ICY ([0-9]{3})/)[1].to_i
+      rescue NoMethodError
+        status_code = 200 #custom streams who doesn't send icy 200 OK will be 200 as default, if not it will send a exception anyway
+      end
 
       @connected = true
 
