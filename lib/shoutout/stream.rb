@@ -42,7 +42,11 @@ module Shoutout
       begin
         status_code = status_line.match(/\AICY ([0-9]{3})/)[1].to_i
       rescue NoMethodError
-        status_code = 200
+        begin
+            status_code = status_line.match(/\AHTTP\/([0-9]\.[0-9]) ([0-9]{3})/)[2].to_i
+        rescue NoMethodError
+            status_code = 200
+        end
       end
 
       @connected = true
