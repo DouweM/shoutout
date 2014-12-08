@@ -109,7 +109,7 @@ module Shoutout
       def read_headers
         raw_headers = ""
         while line = @socket.gets
-          break if line.chomp == ""
+          break if line == "\r\n"
           raw_headers << line
         end
         @headers = Headers.parse(raw_headers)

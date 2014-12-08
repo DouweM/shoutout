@@ -2,9 +2,9 @@ module Shoutout
   class Headers < Hash
     def self.parse(raw_headers)
       headers = {}
-      raw_headers.split($/).each do |line|
+      raw_headers.split("\r\n").each do |line|
         key, value = line.chomp.split(":", 2)
-        headers[key.strip] = value.strip
+        headers[key] = value
       end
 
       new(headers)
