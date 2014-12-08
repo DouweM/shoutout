@@ -36,27 +36,9 @@ module Shoutout
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts send_header_request(uri.path)
 
-      # Read status line
-      status_line = @socket.gets
-      status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)[2].to_i
-
       @connected = true
 
       read_headers
-
-      if status_code >= 300 && status_code < 400 && headers[:location]
-        disconnect
-
-        @url = URI.join(uri, headers[:location]).to_s
-
-        return connect
-      end
-
-      unless status_code >= 200 && status_code < 300
-        disconnect
-
-        return false
-      end
 
       unless metadata_interval
         disconnect
