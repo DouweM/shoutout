@@ -38,6 +38,7 @@ module Shoutout
 
       # Read status line
       status_line = @socket.gets
+      print status_line.inspect
       status_code = status_line.match(/\AHTTP\/([0-9]\.[0-9]) ([0-9]{3})/)[2].to_i
 
       @connected = true
