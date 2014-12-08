@@ -35,12 +35,13 @@ module Shoutout
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts "GET #{uri.path} HTTP/1.0"
-      @socket.puts "Icy-MetaData: 1"
+      @socket.puts "User-Agent: iTunes/9.1.1"
+      @socket.puts "icy-metadata: 1"
       @socket.puts
 
       # Read status line
       status_line = @socket.gets
-      status_code = status_line.match(/ICY ([0-9]{3})/)[1].to_i
+      status_code = status_line.match(/\AHTTP\/([0-9]\.[0-9]) ([0-9]{3})/)[2].to_i
 
       @connected = true
 
