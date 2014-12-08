@@ -39,7 +39,11 @@ module Shoutout
       # Read status line
       status_line = @socket.gets
       print status_line.inspect
-      status_code = status_line.match(/\AHTTP\/([0-9]\.[0-9]) ([0-9]{3})/)[2].to_i
+      begin
+        status_code = status_line.match(/\AICY ([0-9]{3})/)[1].to_i
+      rescue NoMethodError
+        status_code = 200
+      end
 
       @connected = true
 
