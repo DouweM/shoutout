@@ -34,7 +34,8 @@ module Shoutout
 
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.puts send_header_request(uri.path)
+      @socket.puts "GET #{uri.path} HTTP/1.0"
+      @socket.puts "icy-metadata: 1"
 
       @connected = true
 
@@ -49,12 +50,6 @@ module Shoutout
       @read_metadata_thread = Thread.new(&method(:read_metadata))
 
       true
-    end
-
-    def send_header_request(address)
-        return "GET / HTTP/1.1\r\nHost: #{address}\r\nConnection: close\r\n" +
-               "icy-metadata: 1\r\ntransferMode.dlna.org: Streaming\n\r\nHEAD / HTTP/1.1\r\n" +
-               "Host: #{address}\r\n" + "User-Agent: DirbleScrobbler\n\r\n";
     end
 
     def disconnect
