@@ -4,7 +4,7 @@ module Shoutout
       headers = {}
       raw_headers.split("\r\n").each do |line|
         key, value = line.chomp.split(":", 2)
-        headers[key] = value
+        headers[key.strip] = value.strip
       end
 
       new(headers)
