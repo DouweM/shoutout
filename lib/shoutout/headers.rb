@@ -3,6 +3,7 @@ module Shoutout
     def self.parse(raw_headers)
       headers = {}
       raw_headers.split("\r\n").each do |line|
+        break if line == "\r\n" || line == ""
         key, value = line.chomp.split(":", 2)
         headers[key.strip] = value.strip
       end
