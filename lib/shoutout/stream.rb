@@ -31,7 +31,7 @@ module Shoutout
 
     def connect
       return false if @connected
-
+      print "conencting to #{@url}"
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts send_header_request(uri.path, uri.host)
