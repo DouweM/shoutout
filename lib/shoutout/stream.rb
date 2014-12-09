@@ -33,19 +33,15 @@ module Shoutout
       return false if @connected
 
       uri = URI.parse(@url)
-      begin 
-        Timeout.timeout(3) do
-            @socket = TCPSocket.new(uri.host, uri.port)
-        end
-      rescue Timeout::Error
-        return false
-      end
-      @socket.puts send_header_request(uri.path)
+      @socket = TCPSocket.new(uri.host, uri.port)
+      @socket.puts "GET #{uri.path} HTTP/1.0"
+      @socket.puts "icy-metadata: 1"
+      @socket.puts
 
       @connected = true
 
       read_headers
-      print "read headers, done."
+
       unless metadata_interval
         disconnect
 
@@ -55,12 +51,6 @@ module Shoutout
       @read_metadata_thread = Thread.new(&method(:read_metadata))
 
       true
-    end
-
-    def send_header_request(address)
-        return "GET / HTTP/1.1\r\nHost: #{address}\r\nConnection: close\r\n" +
-               "icy-metadata: 1\r\ntransferMode.dlna.org: Streaming\n\r\nHEAD / HTTP/1.1\r\n" +
-               "Host: #{address}\r\n" + "User-Agent: DirbleScrobbler\n\r\n";
     end
 
     def disconnect
@@ -122,28 +112,27 @@ module Shoutout
       end
 
       def read_metadata
-          print "in read metadata"
-        Timeout.timeout(5) do
-            while @connected
-              # Skip audio data
-              data = @socket.read(metadata_interval) || raise(EOFError)
-    
-              data = @socket.read(1) || raise(EOFError)
-              metadata_length = data.unpack("c")[0] * 16
-              next if metadata_length == 0
-    
-              data = @socket.read(metadata_length) || raise(EOFError)
-              raw_metadata = data.unpack("A*")[0]
-              @metadata = Metadata.parse(raw_metadata)
-              print "found metadata"
-              report_metadata_change(@metadata)
-            end
+        @count = 0
+        while @connected && @count < 3
+          # Skip audio data
+          @count = @count + 1
+          data = @socket.read(metadata_interval) || raise(EOFError)
+
+          data = @socket.read(1) || raise(EOFError)
+          metadata_length = data.unpack("c")[0] * 16
+          next if metadata_length == 0
+
+          data = @socket.read(metadata_length) || raise(EOFError)
+          raw_metadata = data.unpack("A*")[0]
+          @metadata = Metadata.parse(raw_metadata)
+          
+          report_metadata_change(@metadata)
+        end
+        if @count == 2
+            disconnect
         end
       rescue Errno::EBADF, IOError => e
         # Connection lost
-        disconnect
-      rescue Timeout::Error
-        #Timedout
         disconnect
       end
 
