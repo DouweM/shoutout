@@ -33,13 +33,19 @@ module Shoutout
       return false if @connected
 
       uri = URI.parse(@url)
-      @socket = TCPSocket.new(uri.host, uri.port)
+      begin 
+        Timeout.timeout(3) do
+            TCPSocket.new(uri.host, uri.port)
+        end
+      rescue Timeout::Error
+        return false
+      end
       @socket.puts send_header_request(uri.path)
 
       @connected = true
 
       read_headers
-
+      print "read headers, done."
       unless metadata_interval
         disconnect
 
@@ -116,22 +122,28 @@ module Shoutout
       end
 
       def read_metadata
-        while @connected
-          # Skip audio data
-          data = @socket.read(metadata_interval) || raise(EOFError)
-
-          data = @socket.read(1) || raise(EOFError)
-          metadata_length = data.unpack("c")[0] * 16
-          next if metadata_length == 0
-
-          data = @socket.read(metadata_length) || raise(EOFError)
-          raw_metadata = data.unpack("A*")[0]
-          @metadata = Metadata.parse(raw_metadata)
-
-          report_metadata_change(@metadata)
+          print "in read metadata"
+        Timeout.timeout(5) do
+            while @connected
+              # Skip audio data
+              data = @socket.read(metadata_interval) || raise(EOFError)
+    
+              data = @socket.read(1) || raise(EOFError)
+              metadata_length = data.unpack("c")[0] * 16
+              next if metadata_length == 0
+    
+              data = @socket.read(metadata_length) || raise(EOFError)
+              raw_metadata = data.unpack("A*")[0]
+              @metadata = Metadata.parse(raw_metadata)
+              print "found metadata"
+              report_metadata_change(@metadata)
+            end
         end
       rescue Errno::EBADF, IOError => e
         # Connection lost
+        disconnect
+      rescue Timeout::Error
+        #Timedout
         disconnect
       end
 
