@@ -48,6 +48,11 @@ module Shoutout
         status_code = false
       end
 
+
+      @connected = true
+
+      read_headers
+
       if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
         disconnect
 
@@ -56,9 +61,6 @@ module Shoutout
         return connect
       end
 
-      @connected = true
-
-      read_headers
 
       unless metadata_interval
         disconnect
