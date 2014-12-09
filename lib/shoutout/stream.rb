@@ -36,6 +36,7 @@ module Shoutout
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts "GET #{uri.path} HTTP/1.0"
       @socket.puts "icy-metadata: 1"
+      @socket.puts
 
       @connected = true
 
