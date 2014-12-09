@@ -55,8 +55,12 @@ module Shoutout
 
       if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
         disconnect
-
+        
+        if @url_retry != nil
+          raise(SocketError) if @url == @url_retry
+        end
         @url = headers[:location].to_s
+        @url_retry = headers[:location].to_s
 
         return connect
       end
