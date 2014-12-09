@@ -35,7 +35,7 @@ module Shoutout
       uri = URI.parse(@url)
       begin 
         Timeout.timeout(3) do
-            TCPSocket.new(uri.host, uri.port)
+            @socket = TCPSocket.new(uri.host, uri.port)
         end
       rescue Timeout::Error
         return false
