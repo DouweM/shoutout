@@ -112,10 +112,8 @@ module Shoutout
       end
 
       def read_metadata
-        @count = 0
-        while @connected && @count < 3
+        while @connected
           # Skip audio data
-          @count = @count + 1
           data = @socket.read(metadata_interval) || raise(EOFError)
 
           data = @socket.read(1) || raise(EOFError)
@@ -127,9 +125,6 @@ module Shoutout
           @metadata = Metadata.parse(raw_metadata)
           
           report_metadata_change(@metadata)
-        end
-        if @count == 2
-            disconnect
         end
       rescue Errno::EBADF, IOError => e
         # Connection lost
