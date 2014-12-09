@@ -56,7 +56,7 @@ module Shoutout
       if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
         disconnect
 
-        @url = URI.join(uri, headers[:location]).to_s
+        @url = headers[:location].to_s
 
         return connect
       end
