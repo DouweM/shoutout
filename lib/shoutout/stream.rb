@@ -34,7 +34,7 @@ module Shoutout
 
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.puts send_header_request(uri.path)
+      @socket.puts send_header_request(uri.path, uri.host)
 
       @connected = true
 
@@ -99,10 +99,8 @@ module Shoutout
       true
     end
 
-    def send_header_request(address)
-        return "GET / HTTP/1.1\r\nHost: #{address}\r\nConnection: close\r\n" +
-               "icy-metadata: 1\r\ntransferMode.dlna.org: Streaming\n\r\nHEAD / HTTP/1.1\r\n" +
-               "Host: #{address}\r\n" + "User-Agent: DirbleScrobbler\n\r\n";
+    def send_header_request(address, host)
+        return "GET #{address} HTTP/1.1\r\nAccept-Encoding: identity\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nConnection: close\r\nUser-Agent: iTunes/9.1.1\r\n\r\n";
     end
 
     private
