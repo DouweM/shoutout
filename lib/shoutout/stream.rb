@@ -36,6 +36,26 @@ module Shoutout
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts send_header_request(uri.path, uri.host)
 
+      # Read status line
+      status_line = @socket.gets
+      if status_line != nil
+        status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
+        if status_code != nil
+          status_code = status_code[2].to_i
+        else status_code = false
+        end
+      else
+        status_code = false
+      end
+
+      if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
+        disconnect
+
+        @url = URI.join(uri, headers[:location]).to_s
+
+        return connect
+      end
+
       @connected = true
 
       read_headers
