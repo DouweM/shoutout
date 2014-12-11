@@ -4,3 +4,4 @@ gemspec
 
 gem "activesupport"
 gem "terminal-notifier"
+gem "tcp_timeout"
