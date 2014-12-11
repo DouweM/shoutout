@@ -64,6 +64,14 @@ module Shoutout
 
         return connect
       end
+      
+      if status_code != false
+          unless status_code >= 200 && status_code < 300
+            disconnect
+    
+            return false
+          end
+      end
 
 
       unless metadata_interval
