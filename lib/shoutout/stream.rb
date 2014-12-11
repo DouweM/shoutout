@@ -1,3 +1,4 @@
+require 'tcp_timeout'
 module Shoutout
   class Stream
     include QuickAccess
