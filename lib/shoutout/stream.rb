@@ -33,8 +33,8 @@ module Shoutout
       return false if @connected
       uri = URI.parse(@url)
       
-      @socket = TCPTimeout::TCPSocket.new(uri.host, uri.port, connect_timeout: 10, write_timeout: 9)
-      @socket.write(send_header_request(uri.path, uri.host))
+      @socket = TCPSocket.new(uri.host, uri.port)
+      @socket.puts send_header_request(uri.path, uri.host)
 
       # Read status line
       status_line = @socket.gets
