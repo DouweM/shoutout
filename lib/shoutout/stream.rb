@@ -37,7 +37,7 @@ module Shoutout
       @socket.write(send_header_request(uri.path, uri.host))
 
       # Read status line
-      status_line = @socket.read()
+      status_line = @socket.gets
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
