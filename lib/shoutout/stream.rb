@@ -156,7 +156,7 @@ module Shoutout
           metadata_length = data.unpack("c")[0] * 16
           next if metadata_length == 0
 
-          data = @socket.read(metadata_interval) || raise(EOFError)
+          data = @socket.read(metadata_length) || raise(EOFError)
           raw_metadata = data.unpack("A*")[0]
           print "\r\n\r\n metadata?: " + raw_metadata + "\r\n\r\n"
           @metadata = Metadata.parse(raw_metadata)
