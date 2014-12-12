@@ -38,6 +38,7 @@ module Shoutout
 
       # Read status line
       status_line = @socket.read(20)
+      print status_line
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
@@ -141,11 +142,13 @@ module Shoutout
       def read_headers
         raw_headers = ""
         lines = @socket.read(1624)
+        print "lines: " + lines
         lines = lines.split("\r\n")
         lines.each do |line|
           break if line == "\r\n" || line == ""
           raw_headers << line
         end
+        print "headers: " + raw_headers
         @headers = Headers.parse(raw_headers)
       end
 
