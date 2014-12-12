@@ -38,7 +38,6 @@ module Shoutout
 
       # Read status line
       status_line = @socket.read(15)
-      print "\r\n\r\n" + status_line + "\r\n\r\n"
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
@@ -143,7 +142,6 @@ module Shoutout
         lines = @socket.read(512)
         #lines = lines.split("\r\n\r\n").first
         @headers = Headers.parse(lines)
-        print @headers.inspect + "\r\n\r\n"
       end
 
       def read_metadata
@@ -158,7 +156,6 @@ module Shoutout
 
           data = @socket.read(metadata_length) || raise(EOFError)
           raw_metadata = data.unpack("A*")[0]
-          print "\r\n\r\n metadata?: " + raw_metadata + "\r\n\r\n"
           @metadata = Metadata.parse(raw_metadata)
           
           report_metadata_change(@metadata)
