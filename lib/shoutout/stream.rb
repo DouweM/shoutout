@@ -140,7 +140,7 @@ module Shoutout
 
     private
       def read_headers
-        lines = @socket.read(1024)
+        lines = @socket.read(512)
         #lines = lines.split("\r\n\r\n").first
         @headers = Headers.parse(lines)
         print @headers.inspect + "\r\n\r\n"
