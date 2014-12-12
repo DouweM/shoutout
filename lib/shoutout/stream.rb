@@ -32,12 +32,12 @@ module Shoutout
     def connect
       return false if @connected
       uri = URI.parse(@url)
-      
-      @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.puts send_header_request(uri.path, uri.host)
+
+      @socket = TCPTimeout::TCPSocket.new(uri.host, uri.port, connect_timeout: 10, write_timeout: 9)
+      @socket.write(send_header_request(uri.path, uri.host))
 
       # Read status line
-      status_line = @socket.gets
+      status_line = @socket.read(20)
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
@@ -140,8 +140,10 @@ module Shoutout
     private
       def read_headers
         raw_headers = ""
-        while line = @socket.gets
-          break if line == "\r\n"
+        lines = @socket.read(1624)
+        lines = lines.split("\r\n")
+        lines.each do |line|
+          break if line == "\r\n" || line == ""
           raw_headers << line
         end
         @headers = Headers.parse(raw_headers)
