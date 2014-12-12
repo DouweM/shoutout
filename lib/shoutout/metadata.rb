@@ -1,6 +1,12 @@
 module Shoutout
   class Metadata < Hash
     def self.parse(raw_metadata)
+      match = raw_metadata.match(/(StreamTitle.*;)/)
+      if match != nil
+        raw_metadata = match[1]
+      else
+        raw_metadata = ""
+      end
       metadata = {}
       raw_metadata.split(";").each do |key_value_pair|
         key, value = key_value_pair.split("=", 2)
