@@ -38,6 +38,7 @@ module Shoutout
 
       # Read status line
       status_line = @socket.read(15)
+      print "\r\n\r\n" + status_line + "\r\n\r\n"
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
