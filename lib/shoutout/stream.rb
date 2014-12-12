@@ -35,7 +35,7 @@ module Shoutout
 
       @socket = TCPTimeout::TCPSocket.new(uri.host, uri.port, connect_timeout: 10, write_timeout: 9)
       @socket.write(send_header_request(uri.path, uri.host))
-
+      @first = true
       # Read status line
       status_line = @socket.read(15)
       if status_line != nil
@@ -147,7 +147,12 @@ module Shoutout
       def read_metadata
         while @connected
           # Skip audio data
-          newmeta_int = metadata_interval - 256
+          if(@first == true)
+            newmeta_int = metadata_interval - 256
+            @first = false
+          else
+            newmeta_int = metadata_interval
+          end
           data = @socket.read(newmeta_int) || raise(EOFError)
 
           data = @socket.read(1) || raise(EOFError)
