@@ -158,6 +158,7 @@ module Shoutout
 
           data = @socket.read(metadata_interval) || raise(EOFError)
           raw_metadata = data.unpack("A*")[0]
+          print "\r\n\r\n metadata?: " + raw_metadata + "\r\n\r\n"
           @metadata = Metadata.parse(raw_metadata)
           
           report_metadata_change(@metadata)
