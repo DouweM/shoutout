@@ -149,13 +149,14 @@ module Shoutout
       def read_metadata
         while @connected
           # Skip audio data
-          data = @socket.read(metadata_interval) || raise(EOFError)
+          newmeta_int = metadata_interval - 512
+          data = @socket.read(newmeta_int) || raise(EOFError)
 
           data = @socket.read(1) || raise(EOFError)
           metadata_length = data.unpack("c")[0] * 16
           next if metadata_length == 0
 
-          data = @socket.read(metadata_length) || raise(EOFError)
+          data = @socket.read(metadata_interval) || raise(EOFError)
           raw_metadata = data.unpack("A*")[0]
           @metadata = Metadata.parse(raw_metadata)
           
