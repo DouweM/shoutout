@@ -92,7 +92,7 @@ module Shoutout
 
       @socket.close if @socket && !@socket.closed?
       @socket = nil
-
+      Thread.kill(@read_metadata_thread)
       true
     end
 
