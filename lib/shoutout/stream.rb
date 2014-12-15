@@ -34,7 +34,9 @@ module Shoutout
       uri = URI.parse(@url)
 
       @socket = TCPTimeout::TCPSocket.new(uri.host, uri.port, connect_timeout: 10, write_timeout: 9)
-      @socket.write(send_header_request(uri.path, uri.host))
+      headersget = send_header_request(uri.path, uri.host)
+      print "request HEADERS: #{headersget.inspect}"
+      @socket.write(headersget)
       @first = true
       # Read status line
       status_line = @socket.read(15)
@@ -141,7 +143,7 @@ module Shoutout
     end
 
     def send_header_request(address, host)
-        return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: DirbleScrobbler/1.1 (dirble.com)\r\n\r\n";
+        return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: DirbleScrobbler/1.1 (dirble.com)\r\nAccept: */*\r\n\r\n";
     end
 
     private
