@@ -38,6 +38,7 @@ module Shoutout
       @first = true
       # Read status line
       status_line = @socket.read(15)
+      print "Status: #{status_line}"
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
@@ -47,11 +48,12 @@ module Shoutout
       else
         status_code = false
       end
-
+      print "Status code: #{status_code}"
 
       @connected = true
 
       read_headers
+      print "HEADERS: #{headers.inspect}"
 
       if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
         disconnect
