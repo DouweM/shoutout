@@ -34,7 +34,11 @@ module Shoutout
       uri = URI.parse(@url)
 
       @socket = TCPTimeout::TCPSocket.new(uri.host, uri.port, connect_timeout: 10, write_timeout: 9)
-      headersget = send_header_request(uri.path, uri.host)
+      path = uri.path
+      if path == nil || path == ""
+        path = "/"
+      end
+      headersget = send_header_request(path, uri.host)
       print "request HEADERS: #{headersget.inspect}"
       @socket.write(headersget)
       @first = true
