@@ -39,12 +39,10 @@ module Shoutout
         path = "/"
       end
       headersget = send_header_request(path, uri.host)
-      print "request HEADERS: #{headersget.inspect}"
       @socket.write(headersget)
       @first = true
       # Read status line
       status_line = @socket.read(15)
-      print "Status: #{status_line}"
       if status_line != nil
         status_code = status_line.match(/\A(HTTP\/[0-9]\.[0-9]|ICY) ([0-9]{3})/)
         if status_code != nil
@@ -54,12 +52,10 @@ module Shoutout
       else
         status_code = false
       end
-      print "Status code: #{status_code}"
 
       @connected = true
 
       read_headers
-      print "HEADERS: #{headers.inspect}"
 
       if status_code != false && status_code >= 300 && status_code < 400 && headers[:location]
         disconnect
@@ -147,7 +143,7 @@ module Shoutout
     end
 
     def send_header_request(address, host)
-        return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: DirbleScrobbler/1.1 (dirble.com)\r\nAccept: */*\r\n\r\n";
+        return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: iTunes/9.1.1\r\nAccept: */*\r\n\r\n";
     end
 
     private
