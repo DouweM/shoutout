@@ -141,7 +141,7 @@ module Shoutout
     end
 
     def send_header_request(address, host)
-        return "GET #{address} HTTP/1.1\r\nAccept-Encoding: identity\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nConnection: close\r\nUser-Agent: iTunes/9.1.1\r\n\r\n";
+        return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: DirbleScrobbler/1.1 (dirble.com)\r\n\r\n";
     end
 
     private
