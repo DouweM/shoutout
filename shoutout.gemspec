@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
   s.files         = Dir.glob("lib/**/*") + %w(LICENSE README.md Rakefile Gemfile)
   s.test_files    = Dir.glob("spec/**/*")
   s.require_path  = "lib"
-  s.add_dependency("tcp_timeout")
   
+  s.add_runtime_dependency     "tcp_timeout", "~> 0.1", ">= 0.1.1"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
 end
