@@ -34,9 +34,7 @@ module Shoutout
 
       uri = URI.parse(@url)
       @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.puts "GET #{uri.path} HTTP/1.0"
-      @socket.puts "Icy-MetaData: 1"
-      @socket.puts
+      @socket.puts send_header_request(path, uri.host)
 
       # Read status line
       status_line = @socket.gets
@@ -69,6 +67,10 @@ module Shoutout
       @read_metadata_thread = Thread.new(&method(:read_metadata))
 
       true
+    end
+    
+    def send_header_request(address, host)
+      return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: iTunes/9.1.1\r\nAccept: */*\r\n\r\n";
     end
 
     def disconnect
