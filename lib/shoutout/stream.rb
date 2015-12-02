@@ -78,7 +78,12 @@ module Shoutout
 
       @socket.close if @socket && !@socket.closed?
       @socket = nil
-
+      if @read_metadata_thread != nil
+        Thread.kill(@read_metadata_thread)
+      end
+      if @last_metadata_change_thread != nil
+        Thread.kill(@last_metadata_change_thread)
+      end
       true
     end
 
