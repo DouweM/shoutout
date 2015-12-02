@@ -4,7 +4,9 @@ module Shoutout
       metadata = {}
       raw_metadata.split(";").each do |key_value_pair|
         key, value = key_value_pair.split("=", 2)
-        metadata[key] = value.match(/\A'(.*)'\z/)[1]
+        if !key.nil? && !value.nil? && !value.match(/\A'(.*)'\z/).nil?
+          metadata[key] = value.match(/\A'(.*)'\z/)[1]
+        end
       end
 
       new(metadata)
