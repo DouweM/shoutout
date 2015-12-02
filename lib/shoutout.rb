@@ -1,5 +1,6 @@
 require "uri"
 require "socket"
+require 'ensure/encoding'
 
 require "shoutout/version"
 require "shoutout/util"
