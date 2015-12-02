@@ -33,6 +33,10 @@ module Shoutout
       return false if @connected
 
       uri = URI.parse(@url)
+      path = uri.path
+      if path == nil || path == ""
+        path = "/"
+      end
       @socket = TCPSocket.new(uri.host, uri.port)
       @socket.puts send_header_request(path, uri.host)
 
