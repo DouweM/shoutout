@@ -21,8 +21,10 @@ module Shoutout
       end
     end
 
-    def initialize(url)
+    def initialize(url, timeout = 5)
       @url = url
+      @timeout = timeout
+      @socket = nil
     end
 
     def connected?
@@ -37,7 +39,7 @@ module Shoutout
       if path == nil || path == ""
         path = "/"
       end
-      @socket = TCPSocket.new(uri.host, uri.port)
+      getSocket
       @socket.puts send_header_request(path, uri.host)
 
       # Read status line
@@ -72,7 +74,7 @@ module Shoutout
 
       true
     end
-    
+
     def send_header_request(address, host)
       return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: iTunes/9.1.1\r\nAccept: */*\r\n\r\n";
     end
@@ -130,6 +132,46 @@ module Shoutout
       true
     end
 
+    def getSocket
+       uri = URI.parse(@url)
+       # Convert the passed host into structures the non-blocking calls
+       # can deal with
+       addr = Socket.getaddrinfo(uri.host, nil)
+       sockaddr = Socket.pack_sockaddr_in(uri.port, addr[0][3])
+
+       @socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0).tap do |socket|
+         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+
+         begin
+           # Initiate the socket connection in the background. If it doesn't fail
+           # immediatelyit will raise an IO::WaitWritable (Errno::EINPROGRESS)
+           # indicating the connection is in progress.
+           socket.connect_nonblock(sockaddr)
+
+         rescue IO::WaitWritable
+           # IO.select will block until the socket is writable or the timeout
+           # is exceeded - whichever comes first.
+           if IO.select(nil, [socket], nil, @timeout)
+             begin
+               # Verify there is now a good connection
+               socket.connect_nonblock(sockaddr)
+             rescue Errno::EISCONN
+               # Good news everybody, the socket is connected!
+             rescue
+               # An unexpected exception was raised - the connection is no good.
+               socket.close
+               raise
+             end
+           else
+             # IO.select returns nil when the socket is not ready before timeout
+             # seconds have elapsed
+             socket.close
+             raise "Connection timeout"
+           end
+         end
+       end
+    end
+
     private
       def read_headers
         raw_headers = ""
@@ -149,7 +191,7 @@ module Shoutout
           next if match.nil?
 
           @metadata = Metadata.parse(match[1])
-          
+
           report_metadata_change(@metadata)
         end
       rescue Errno::EBADF, IOError => e
