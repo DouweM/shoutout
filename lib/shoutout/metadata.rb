@@ -69,7 +69,11 @@ module Shoutout
 
       private
         def artist_and_song
-          @artist_and_song ||= now_playing.split(" - ", 2)
+            if now_playing != nil
+             @artist_and_song ||= now_playing.split(" - ", 2)
+            else
+              @artist_and_song = ["", ""]
+            end
         end
     end
 
