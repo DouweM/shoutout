@@ -7,6 +7,10 @@ module Shoutout
     def content_type
       headers[:content_type]
     end
+    
+    def server
+      headers[:server]
+    end
 
     def audio_info
       return @audio_info if defined?(@audio_info)
