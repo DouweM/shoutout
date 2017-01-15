@@ -27,7 +27,7 @@ module Shoutout
       @audio_info = audio_info
     end
 
-    %w(name description genre notice).each do |method|
+    %w(name description genre notice notice1 notice2).each do |method|
       define_method(method) do
         headers["icy-#{method}"]
       end
