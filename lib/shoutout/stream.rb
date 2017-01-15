@@ -21,8 +21,10 @@ module Shoutout
       end
     end
 
-    def initialize(url)
+    def initialize(url, timeout = 5)
       @url = url
+      @timeout = timeout
+      @socket = nil
     end
 
     def connected?
@@ -33,10 +35,12 @@ module Shoutout
       return false if @connected
 
       uri = URI.parse(@url)
-      @socket = TCPSocket.new(uri.host, uri.port)
-      @socket.puts "GET #{uri.path} HTTP/1.0"
-      @socket.puts "Icy-MetaData: 1"
-      @socket.puts
+      path = uri.path
+      if path == nil || path == ""
+        path = "/"
+      end
+      getSocket
+      @socket.puts send_header_request(path, uri.host)
 
       # Read status line
       status_line = @socket.gets
@@ -71,6 +75,10 @@ module Shoutout
       true
     end
 
+    def send_header_request(address, host)
+      return "GET #{address} HTTP/1.1\r\nIcy-Metadata: 1\r\nHost: #{host}\r\nUser-Agent: iTunes/9.1.1\r\nAccept: */*\r\n\r\n";
+    end
+
     def disconnect
       return false unless @connected
 
@@ -78,7 +86,12 @@ module Shoutout
 
       @socket.close if @socket && !@socket.closed?
       @socket = nil
-
+      if @read_metadata_thread != nil
+        Thread.kill(@read_metadata_thread)
+      end
+      if @last_metadata_change_thread != nil
+        Thread.kill(@last_metadata_change_thread)
+      end
       true
     end
 
@@ -119,6 +132,46 @@ module Shoutout
       true
     end
 
+    def getSocket
+       uri = URI.parse(@url)
+       # Convert the passed host into structures the non-blocking calls
+       # can deal with
+       addr = Socket.getaddrinfo(uri.host, nil)
+       sockaddr = Socket.pack_sockaddr_in(uri.port, addr[0][3])
+
+       @socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0).tap do |socket|
+         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+
+         begin
+           # Initiate the socket connection in the background. If it doesn't fail
+           # immediatelyit will raise an IO::WaitWritable (Errno::EINPROGRESS)
+           # indicating the connection is in progress.
+           socket.connect_nonblock(sockaddr)
+
+         rescue IO::WaitWritable
+           # IO.select will block until the socket is writable or the timeout
+           # is exceeded - whichever comes first.
+           if IO.select(nil, [socket], nil, @timeout)
+             begin
+               # Verify there is now a good connection
+               socket.connect_nonblock(sockaddr)
+             rescue Errno::EISCONN
+               # Good news everybody, the socket is connected!
+             rescue
+               # An unexpected exception was raised - the connection is no good.
+               socket.close
+               raise
+             end
+           else
+             # IO.select returns nil when the socket is not ready before timeout
+             # seconds have elapsed
+             socket.close
+             raise "Connection timeout"
+           end
+         end
+       end
+    end
+
     private
       def read_headers
         raw_headers = ""
@@ -132,15 +185,12 @@ module Shoutout
       def read_metadata
         while @connected
           # Skip audio data
-          data = @socket.read(metadata_interval) || raise(EOFError)
+          data = @socket.read(metadata_interval + 255) || raise(EOFError)
+          raw_data = data.unpack("A*")[0]
+          match = raw_data.match(/(StreamTitle.*;)/)
+          next if match.nil?
 
-          data = @socket.read(1) || raise(EOFError)
-          metadata_length = data.unpack("c")[0] * 16
-          next if metadata_length == 0
-
-          data = @socket.read(metadata_length) || raise(EOFError)
-          raw_metadata = data.unpack("A*")[0]
-          @metadata = Metadata.parse(raw_metadata)
+          @metadata = Metadata.parse(match[1])
 
           report_metadata_change(@metadata)
         end

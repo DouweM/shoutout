@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.test_files    = Dir.glob("spec/**/*")
   s.require_path  = "lib"
   
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rspec"
+  s.add_runtime_dependency     "ensure-encoding", "~> 0.1", "<= 0.1.1"
+  s.add_development_dependency "rake", '~> 0'
+  s.add_development_dependency "rspec", '~> 0'
 end

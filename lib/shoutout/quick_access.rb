@@ -7,6 +7,10 @@ module Shoutout
     def content_type
       headers[:content_type]
     end
+    
+    def server
+      headers[:server]
+    end
 
     def audio_info
       return @audio_info if defined?(@audio_info)
@@ -27,7 +31,7 @@ module Shoutout
       @audio_info = audio_info
     end
 
-    %w(name description genre notice).each do |method|
+    %w(name description genre notice notice1 notice2).each do |method|
       define_method(method) do
         headers["icy-#{method}"]
       end
